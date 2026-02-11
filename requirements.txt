@@ -1,3 +1,4 @@
 requests
 static-ffmpeg
 flask
+flask-cors
