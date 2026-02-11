@@ -3,12 +3,18 @@ import json
 import subprocess
 import os
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
 from static_ffmpeg import add_paths
 
 add_paths()  # Ensure ffmpeg is in the PATH
 
 app = Flask(__name__)
+CORS(app) # Enable CORS for all routes
 output_folder = "Output"
+
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
 
 if not os.path.exists(output_folder):
     os.mkdir(output_folder)
@@ -135,5 +141,6 @@ def get_video(video_id):
         return send_file(file_path, as_attachment=True)
     return jsonify({"error": "File not found"}), 404
 
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
