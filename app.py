@@ -2,10 +2,20 @@ import os
 import uuid
 import shutil
 import tempfile
+import re
 from flask import Flask, request, jsonify, send_file
 import yt_dlp
 
 app = Flask(__name__)
+
+def clean_ansi(text):
+    """Remove ANSI escape sequences from a string."""
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    return ansi_escape.sub('', text)
+
+@app.route("/", methods=["GET"])
+def health_check():
+    return jsonify({"status": "running", "message": "Facebook Video Downloader API is active"}), 200
 
 @app.route("/download", methods=["POST"])
 def download_reel():
@@ -32,15 +42,19 @@ def download_reel():
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([reel_url])
 
+        if not os.path.exists(output_path):
+            return jsonify({"error": "File was not downloaded. Check if the URL is correct and public."}), 500
+
         return send_file(
             output_path,
             as_attachment=True,
-            download_name="facebook_reel.mp4",
+            download_name="facebook_video.mp4",
             mimetype="video/mp4"
         )
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        error_msg = clean_ansi(str(e))
+        return jsonify({"error": error_msg}), 500
 
     finally:
         # Cleanup temp directory
