@@ -12,6 +12,10 @@ app = Flask(__name__)
 CORS(app) # Enable CORS for all routes
 output_folder = "Output"
 
+@app.route('/')
+def home():
+    return jsonify({"status": "ok", "message": "FB Downloader API is running"}), 200
+
 @app.route('/favicon.ico')
 def favicon():
     return '', 204
