@@ -132,7 +132,16 @@ def download():
     if "error" in result:
         return jsonify(result), 500
     
-    return jsonify(result)
+    # Return the binary file directly
+    file_path = result['file_path']
+    video_id = result['video_id']
+    
+    return send_file(
+        file_path, 
+        as_attachment=True, 
+        download_name=f"{video_id}.mp4",
+        mimetype='video/mp4'
+    )
 
 @app.route('/get_video/<video_id>', methods=['GET'])
 def get_video(video_id):
