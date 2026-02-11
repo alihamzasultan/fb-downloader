@@ -1,4 +1,4 @@
 requests
-static-ffmpeg
 flask
 flask-cors
+gunicorn
